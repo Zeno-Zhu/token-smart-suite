@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+dist/
+original.jsonl
+cold-index.sqlite*
+.DS_Store

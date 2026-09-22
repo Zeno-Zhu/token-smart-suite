@@ -1,0 +1,6 @@
+interface:
+  display_name: "Token Smart · 三层省 Token"
+  short_description: "① 活跃期少读少复检少播报 ② 旧历史冷存按需检索 ③ 离线复盘收敛技能与记忆"
+  default_prompt: "使用 $token-smart 完成本次任务：先按活跃期纪律减少无效消耗，必要时再进入历史冷存或离线收敛层，保留完整结果与必要检查。"
+policy:
+  allow_implicit_invocation: true
