@@ -5,6 +5,7 @@ import base64
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -27,9 +28,28 @@ def defaults(target):
     home = Path.home()
     if target == "claude":
         return home / ".claude" / "skills", home / ".claude" / "CLAUDE.md"
-    codex = Path(os.environ.get("CODEX_HOME", home / ".codex")).expanduser()
+    codex = Path(as_windows_path(os.environ.get("CODEX_HOME")) or home / ".codex").expanduser()
     override = codex / "AGENTS.override.md"
     return home / ".agents" / "skills", override if override.is_file() else codex / "AGENTS.md"
+
+
+_MSYS_DRIVE = re.compile(r"^/([A-Za-z])/(.*)$")
+
+
+def as_windows_path(value):
+    """Map a Git-Bash/MSYS path such as /c/Users/x to C:/Users/x on Windows.
+
+    Git Bash sets HOME=/c/Users/<name>, and Windows Python treats that leading
+    slash as relative to the current drive, silently installing into C:\\c\\...
+    Non-Windows platforms are left untouched, where /c/... may be a real path.
+    """
+    if value is None or os.name != "nt":
+        return value
+    text = str(value).replace("\\", "/")
+    match = _MSYS_DRIVE.match(text)
+    if not match:
+        return value
+    return Path(f"{match.group(1).upper()}:/{match.group(2)}")
 
 
 def read_receipt(dest):
@@ -165,6 +185,8 @@ def main(argv=None):
     parser.add_argument("--uninstall", action="store_true")
     parser.add_argument("--lang", choices=("zh", "en"), default="zh")
     args = parser.parse_args(argv)
+    args.skills_dir = as_windows_path(args.skills_dir)
+    args.instructions = as_windows_path(args.instructions)
     skills, instructions = defaults(args.target)
     dest = (args.skills_dir or skills).expanduser().resolve() / NAME
     if args.activate and args.uninstall:

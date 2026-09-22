@@ -55,6 +55,18 @@ python install.py --target codex      # 或 --target claude
 
 默认目录 `~/.agents/skills/token-smart`（Codex）与 `~/.claude/skills/token-smart`（Claude Code）。首次安装会打印简短说明；普通任务不再重复。
 
+### 装到别的宿主
+
+安装器默认只认 Codex 和 Claude Code 两套目录。要让 **WorkBuddy** 也能发现这个技能，用 `--skills-dir` 指到它的用户级技能目录：
+
+```sh
+python install.py --target codex --skills-dir ~/.workbuddy/skills
+```
+
+两者互不干扰，都是**用户级、跨项目**生效，不是项目级。
+
+**Windows / Git Bash 注意**：`--skills-dir` 现在同时接受原生路径（`C:/Users/me/skills`）和 Git Bash 风格（`/c/Users/me/skills`），后者会被自动映射到对应盘符。早期版本会把 `/c/...` 当成相对路径、装进 `C:\c\...`，这一版已修。
+
 ### 从旧版升级
 
 如果你装过独立的 `token-smart`，先卸载再装新版（安装器遇到文件不一致会拒绝覆盖，这是有意的）：
@@ -84,8 +96,11 @@ Codex 常驻规则写入 `$CODEX_HOME/AGENTS.md`（已有 `AGENTS.override.md` �
 **卸载**：在原目标上运行 `--uninstall`（用过自定义 `--skills-dir` 就带上同一路径，不要同时加 `--activate`）。已修改的文件与规则块会保留。
 
 ```sh
-python install.py --target codex --uninstall
+python install.py --target codex --uninstall                              # Codex 全局
+python install.py --target codex --skills-dir ~/.workbuddy/skills --uninstall   # WorkBuddy 全局
 ```
+
+装了几处就要分别卸几处；卸载是**凭据式**的，只删字节与安装记录一致的文件，你手改过的内容会被保留并打印出来。
 
 自定义位置与语言：`--skills-dir` 指定技能父目录，`--instructions` 指定常驻规则文件，`--lang en` 用英文安装说明。
 
@@ -125,7 +140,7 @@ bash "$SKILLOPT_SLEEP_REPO/plugins/run-sleep.sh" dry-run --project "$(pwd)" \
 ## 验证
 
 ```sh
-python -m unittest discover -s tests                       # 安装器回归
+python -m unittest discover -s tests                       # 安装器回归（8 项）
 python -X utf8 skills/token-smart/scripts/test_cold_history.py   # 冷档案查询器自检
 ```
 

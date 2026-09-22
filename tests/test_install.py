@@ -2,6 +2,7 @@
 import contextlib
 import importlib.util
 import io
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -98,6 +99,14 @@ class InstallerTest(unittest.TestCase):
         self.assertIn("Introduction", output.getvalue())
         self.run_install("--uninstall")
         self.assertFalse((self.skills / installer.NAME).exists())
+
+    @unittest.skipUnless(os.name == "nt", "MSYS path mapping is Windows-only")
+    def test_git_bash_paths_are_mapped_to_drive_paths(self):
+        self.assertEqual(installer.as_windows_path(Path("/c/Users/x/skills")), Path("C:/Users/x/skills"))
+        self.assertEqual(installer.as_windows_path(Path("/d/work/skills")), Path("D:/work/skills"))
+        self.assertIsNone(installer.as_windows_path(None))
+        native = Path(r"C:\Users\x\.agents\skills")
+        self.assertEqual(installer.as_windows_path(native), native)
 
 
 if __name__ == "__main__":
