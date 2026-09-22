@@ -1,0 +1,9 @@
+# Skill 文本文件在仓库内统一 LF，避免跨机 / 跨宿主出现 CRLF 差异
+* text=auto eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.png binary
+*.jpg binary
+*.zip binary
